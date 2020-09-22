@@ -52,6 +52,9 @@ function draw() {
       pipes.splice(i, 1);
     }
   }
+  if(pipes.lenght>0){
+    bird.think(pipes);
+  }
   bird.update();
   bird.show();
   //push a new pipe every 150 frame
@@ -77,15 +80,17 @@ function gameover() {
   noLoop();
 }
 
-function keyPressed() {
-  switch(key){
-    case ' ':
-    bird.up();
-    if(isOver) reset();
-    break;
-  }
-}
 
-function touchStarted() {
-  if (isOver) reset();
-}
+
+// function keyPressed() {
+//   switch(key){
+//     case ' ':
+//     bird.up();
+//     if(isOver) reset();
+//     break;
+//   }
+// }
+
+// function touchStarted() {
+//   if (isOver) reset();
+// }
