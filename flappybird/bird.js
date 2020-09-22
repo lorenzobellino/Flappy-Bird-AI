@@ -1,62 +1,74 @@
 
 class Bird {
-  constructor() {
+  constructor(brain) {
+    this.width = 46;
+    this.height = 46;
+    this.icon = birdImg;
+
     this.y = height / 2;
     this.x = 64;
 
-    this.gravity = 0.6;
-    this.lift = -10;
+    this.gravity = 0.8;
+    this.lift = -12;
     this.velocity = 0;
 
-    this.icon = birdImg;
-    this.width = 64;
-    this.height = 64;
 
-    this.brain = new NeuralNetwork(4,4,1);
-  }
+    this.score = 0;
+    this.fitness = 0;
+    if (brain) {
+      this.brain = brain.copy();
+    } else {
+      this.brain = new NeuralNetwork(5, 8, 2);
+    }
 
-  show() {
-    image(this.icon, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
   }
+    show() {
+      image(this.icon, this.x - this.width / 2, this.y - this.height / 2, this.width, this.height);
+    }
 
   up() {
-    this.velocity = this.lift;
+    this.velocity += this.lift;
   }
 
-  think(pipes){
+  mutate() {
+    this.brain.mutate(0.1);
+  }
+
+  think(pipes) {
+
+    // Find the closest pipe
     let closest = null;
     let closestD = Infinity;
-
-    for(let i = 0; i< pipes.lenght; i++){
-      let d = pipes[i].x - this.x;
-      if(d < closestD){
+    for (let i = 0; i < pipes.length; i++) {
+      let d = (pipes[i].x + pipes[i].w) - this.x;
+      if (d < closestD && d > 0) {
         closest = pipes[i];
         closestD = d;
       }
     }
+
+
     let inputs = [];
     inputs[0] = this.y / height;
     inputs[1] = closest.top / height;
     inputs[2] = closest.bottom / height;
     inputs[3] = closest.x / width;
-
+    inputs[4] = this.velocity / 10;
     let output = this.brain.predict(inputs);
-    if(output[0] > 0.5){
+    if (output[0] > output[1]) {
       this.up();
     }
+
+  }
+
+  offScreen() {
+    return (this.y > height || this.y < 0);
   }
 
   update() {
+    this.score++;
     this.velocity += this.gravity;
     this.y += this.velocity;
-    if (this.y >= height - this.height / 2) {
-      this.y = height - this.height / 2;
-      this.velocity = 0;
-    }
-
-    if (this.y <= this.height / 2) {
-      this.y = this.height / 2;
-      this.velocity = 0;
-    }
   }
+
 }

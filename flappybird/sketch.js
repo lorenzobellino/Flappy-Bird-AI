@@ -1,14 +1,14 @@
 
-var bird;
-var pipes;
-var score;
-var maxScore=0;
+const TOTAL = 500;
+let birds = [];
+let savedBirds = [];
+let pipes = [];
+let counter = 0;
+let slider;
 var pipeBottom;
 var pipeTop;
 var bgImg;
-var isOver = false;
-var touched = false;
-var prevTouched = touched;
+var birdImg;
 
 //Load the image
 function preload(){
@@ -18,79 +18,75 @@ function preload(){
   bgImg = loadImage('graphics/bg.png');
 }
 
-function setup() {
-  createCanvas(600,800);
-  reset()
+function keyPressed() {
+  if (key === 'S') {
+    let bird = birds[0];
+    saveJSON(bird.brain, 'bird.json');
+  }
 }
 
-function reset() {
-  frameCount = 0;
-  isOver = false;
-  score = 0;
-  pipes = [];
-  bird = new Bird();
-  pipes.push(new Pipe());
-  loop();
+function setup() {
+  createCanvas(600, 800);
+  slider = createSlider(1, 10, 1);
+  for (let i = 0; i < TOTAL; i++) {
+    birds[i] = new Bird();
+  }
 }
 
 function draw() {
+  for (let n = 0; n < slider.value(); n++) {
+    if (counter % 75 == 0) {
+      pipes.push(new Pipe());
+    }
+    counter++;
+
+    for (let i = pipes.length - 1; i >= 0; i--) {
+      pipes[i].update();
+
+      for (let j = birds.length - 1; j >= 0; j--) {
+        if (pipes[i].hits(birds[j])) {
+          savedBirds.push(birds.splice(j, 1)[0]);
+        }
+      }
+
+      if (pipes[i].offscreen()) {
+        pipes.splice(i, 1);
+      }
+    }
+
+    for (let i = birds.length - 1; i >= 0; i--) {
+      if (birds[i].offScreen()) {
+        savedBirds.push(birds.splice(i, 1)[0]);
+      }
+    }
+
+    for (let bird of birds) {
+      bird.think(pipes);
+      bird.update();
+    }
+
+    if (birds.length === 0) {
+      counter = 0;
+      nextGeneration();
+      pipes = [];
+    }
+  }
+
+  // All the drawing stuff
   image(bgImg,0,0);
-  //for each pipe update its position and draw it
-  for (var i = pipes.length - 1; i >= 0; i--) {
-    pipes[i].update();
-    pipes[i].show();
-    //check if bird has passed a pipe
-    if (pipes[i].pass(bird)) {
-      score++;
-    }
-    //check if bird hit the pipe
-    if (pipes[i].hits(bird)) {
-      gameover();
-    }
-    //if the pipe is out of frame delete it from the array
-    if (pipes[i].offscreen()) {
-      pipes.splice(i, 1);
-    }
+  //background(0);
+  for (let bird of birds) {
+    bird.show();
   }
-  if(pipes.lenght>0){
-    bird.think(pipes);
+
+  for (let pipe of pipes) {
+    pipe.show();
   }
-  bird.update();
-  bird.show();
-  //push a new pipe every 150 frame
-  if (frameCount % 150 == 0) {
-    pipes.push(new Pipe());
-  }
-  showScores();
 }
-
-function showScores() {
-  textSize(32);
-  text('score: ' + score, 1, 32);
-  text('record: ' + maxScore, 1, 64);
-}
-
-function gameover() {
-  textSize(64);
-  textAlign(CENTER, CENTER);
-  text('GAMEOVER', width / 2, height / 2);
-  textAlign(LEFT, BASELINE);
-  maxScore = max(score, maxScore);
-  isOver = true;
-  noLoop();
-}
-
-
 
 // function keyPressed() {
-//   switch(key){
-//     case ' ':
+//   if (key == ' ') {
 //     bird.up();
-//     if(isOver) reset();
-//     break;
+//     //console.log("SPACE");
 //   }
-// }
-
-// function touchStarted() {
-//   if (isOver) reset();
 // }
