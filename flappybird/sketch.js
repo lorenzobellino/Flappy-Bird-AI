@@ -10,6 +10,7 @@ var isOver = false;
 var touched = false;
 var prevTouched = touched;
 
+//Load the image
 function preload(){
   pipeTop = loadImage('graphics/pipet.png');
   pipeBottom = loadImage('graphics/pipeb.png')
@@ -34,21 +35,26 @@ function reset() {
 
 function draw() {
   image(bgImg,0,0);
+  //for each pipe update its position and draw it
   for (var i = pipes.length - 1; i >= 0; i--) {
     pipes[i].update();
     pipes[i].show();
+    //check if bird has passed a pipe
     if (pipes[i].pass(bird)) {
       score++;
     }
+    //check if bird hit the pipe
     if (pipes[i].hits(bird)) {
       gameover();
     }
+    //if the pipe is out of frame delete it from the array
     if (pipes[i].offscreen()) {
       pipes.splice(i, 1);
     }
   }
   bird.update();
   bird.show();
+  //push a new pipe every 150 frame
   if (frameCount % 150 == 0) {
     pipes.push(new Pipe());
   }

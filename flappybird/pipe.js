@@ -1,16 +1,18 @@
 class Pipe{
   constructor(){
-    this.spacing = 180;
+    this.spacing = 180;   //spacing between top and bottom of the pipe
     this.top = random(height / 6, 3 / 4 * height);
     this.bottom = this.top + this.spacing;
 
-    this.x = width;
-    this.w = 80;
+    this.x = width; //pipe posistion
+    this.w = 80;    //width of the pipe
     this.speed = 3;
 
     this.passed = false;
   }
 
+  //if the bird's x coordinate is greather than the pipe's x coordinate
+  //the bird is passed
   pass(bird) {
     if (bird.x > this.x && !this.passed) {
       this.passed = true;
@@ -19,6 +21,7 @@ class Pipe{
     return false;
   }
 
+//collision detection between bird and pipe
   hits(bird){
     let halfBirdHeight = bird.height / 2;
     let halfBirdwidth = bird.width / 2;
